@@ -20,10 +20,10 @@ body{background:#0f1117;color:#e2e8f0;font-family:'Inter',system-ui,sans-serif}
 .s-tbc{background:#1f2937;color:#6b7280}
 .s-contract{background:#1c1917;color:#a8a29e}
 .s-default{background:#1f2937;color:#9ca3af}
-.p-p0{background:#450a0a;color:#f87171}
-.p-p1{background:#431407;color:#fb923c}
-.p-p2{background:#1f2937;color:#9ca3af}
-.p-pm1{background:#1e1b4b;color:#818cf8}
+.p-p0{background:#3d2800;color:#fbbf24}
+.p-p1{background:#1e3a5f;color:#60a5fa}
+.p-p2{background:#2d1b69;color:#a78bfa}
+.p-pm1{background:#450a0a;color:#f87171}
 .row-urgent{border-left:3px solid #ef4444}
 .row-warn{border-left:3px solid #f59e0b}
 .row-norm{border-left:3px solid transparent}
@@ -199,6 +199,7 @@ function getStatusClass(s){
 }
 
 function getPriorityClass(p){
+  if(p==='P-1') return 'p-pm1';
   if(p==='P0') return 'p-p0';
   if(p==='P1') return 'p-p1';
   if(p==='P2') return 'p-p2';
