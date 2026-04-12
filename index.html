@@ -43,13 +43,14 @@ select:focus,input[type=text]:focus{outline:none;border-color:var(--bybit-yellow
 .table-wrap{overflow-x:auto}
 table{width:100%;min-width:860px;border-collapse:collapse}
 th{background:#111115;color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;position:sticky;top:56px;z-index:10;border-bottom:1px solid var(--border)}
-td{padding:10px 14px;font-size:13px;border-bottom:1px solid #1a1a22;vertical-align:middle}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid #1a1a22;vertical-align:middle;overflow:visible}
+.table-wrap{overflow-x:auto;overflow-y:visible}
 tr.xrow:hover td{background:#1a1a22;cursor:pointer}
 .row-urgent{border-left:3px solid #f87171}
 .row-warn{border-left:3px solid var(--bybit-yellow)}
 .row-norm{border-left:3px solid transparent}
 /* Badges */
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;letter-spacing:.02em}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;letter-spacing:.02em;position:relative;z-index:1}
 .s-launched{background:#0d2e1a;color:#4ade80;border:1px solid #166534}
 .s-developing{background:#0f1f36;color:#60a5fa;border:1px solid #1d4ed8}
 .s-testnet{background:#0d2e1a;color:#34d399;border:1px solid #065f46}
