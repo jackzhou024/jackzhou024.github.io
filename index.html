@@ -40,11 +40,11 @@ select:focus,input[type=text]:focus{outline:none;border-color:var(--bybit-yellow
 .reset-btn{font-size:12px;color:var(--text-muted);padding:7px 14px;border:1px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif}
 .reset-btn:hover{border-color:var(--bybit-yellow);color:var(--bybit-yellow)}
 /* Table */
-.table-wrap{overflow-x:auto}
+.table-wrap{}
 table{width:100%;min-width:860px;border-collapse:separate;border-spacing:0}
-th{background:#111115;color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;position:sticky;top:56px;z-index:50;border-bottom:1px solid var(--border)}
-td{padding:10px 14px;font-size:13px;border-bottom:1px solid #1a1a22;vertical-align:middle;overflow:visible}
-.table-wrap{overflow-x:auto;overflow-y:visible}
+th{background:#111115;color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid #1a1a22;vertical-align:middle}
+
 tr.xrow:hover td{background:#1a1a22;cursor:pointer}
 .row-urgent{border-left:3px solid #f87171}
 .row-warn{border-left:3px solid var(--bybit-yellow)}
@@ -118,6 +118,7 @@ a.mrd-link:hover{text-decoration:underline}
 
 <!-- Table -->
 <div class="card table-wrap">
+<div style="overflow:auto;max-height:calc(100vh - 260px)">
   <table id="projectTable">
     <thead>
       <tr>
@@ -133,6 +134,7 @@ a.mrd-link:hover{text-decoration:underline}
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
+</div>
   <div id="emptyState" style="display:none;text-align:center;padding:40px;color:#4a4a5a;font-size:13px">No projects match your filters.</div>
 </div>
 
