@@ -1,1 +1,300 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Ops Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: #0f1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; }
+  .card { background: #1a1d27; border: 1px solid #2d3148; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .status-launched { background: #14532d; color: #4ade80; }
+  .status-developing { background: #1e3a5f; color: #60a5fa; }
+  .status-mrd { background: #451a03; color: #fb923c; }
+  .status-prd { background: #3b1f00; color: #f97316; }
+  .status-trd { background: #2d1b69; color: #a78bfa; }
+  .status-confirming { background: #422006; color: #fbbf24; }
+  .status-default { background: #1f2937; color: #9ca3af; }
+  .priority-p0 { background: #450a0a; color: #f87171; }
+  .priority-p1 { background: #431407; color: #fb923c; }
+  .priority-p2 { background: #1f2937; color: #9ca3af; }
+  .priority-pm1 { background: #1f2937; color: #6b7280; }
+  .row-urgent { border-left: 3px solid #ef4444; }
+  .row-warning { border-left: 3px solid #f59e0b; }
+  .row-normal { border-left: 3px solid transparent; }
+  tr.expandable { cursor: pointer; }
+  tr.expandable:hover td { background: #1e2235 !important; }
+  .notes-row { display: none; }
+  .notes-row.open { display: table-row; }
+  .tab-btn { padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+  .tab-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+  .tab-btn:not(.active) { background: transparent; color: #6b7280; border-color: #2d3148; }
+  .tab-btn:not(.active):hover { border-color: #4b5563; color: #9ca3af; }
+  select, input { background: #1a1d27; border: 1px solid #2d3148; color: #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+  select:focus, input:focus { outline: none; border-color: #3b82f6; }
+  th { background: #13151f; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; }
+  td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #1e2235; vertical-align: middle; }
+  .stat-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 16px 20px; }
+</style>
+</head>
+<body class="min-h-screen p-6">
+<div class="max-w-7xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-white">📊 Business Ops Dashboard</h1>
+      <p class="text-gray-500 text-sm mt-1">Campaign Team &amp; Ops Edge Team · Bybit</p>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-gray-500">Last updated</div>
+      <div class="text-sm text-gray-300" id="lastUpdated"></div>
+    </div>
+  </div>
+
+  <div class="flex gap-3 mb-6">
+    <button class="tab-btn active" onclick="switchTab('campaign')">🏁 Campaign Team</button>
+    <button class="tab-btn" onclick="switchTab('opsedge')">⚙️ Ops Edge Team</button>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="statCards"></div>
+
+  <div id="alertBanner" class="mb-4"></div>
+
+  <div class="card rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center">
+    <input type="text" id="searchInput" placeholder="🔍 Search project..." class="flex-1 min-w-48" oninput="applyFilters()">
+    <select id="statusFilter" onchange="applyFilters()"><option value="">All Status</option></select>
+    <select id="priorityFilter" onchange="applyFilters()">
+      <option value="">All Priority</option>
+      <option value="P0">P0</option>
+      <option value="P1">P1</option>
+      <option value="P-1">P-1</option>
+      <option value="P2">P2</option>
+    </select>
+    <select id="picFilter" onchange="applyFilters()"><option value="">All PIC</option></select>
+    <button onclick="resetFilters()" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-1 border border-gray-700 rounded-md">Reset</button>
+  </div>
+
+  <div class="card rounded-xl overflow-hidden">
+    <table class="w-full" id="projectTable">
+      <thead>
+        <tr>
+          <th class="text-left">Project Name</th>
+          <th class="text-left">PIC</th>
+          <th class="text-left">Status</th>
+          <th class="text-left">Priority</th>
+          <th class="text-left">OKR Metrics</th>
+          <th class="text-left">Deadline</th>
+          <th class="text-left">Days Left</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="emptyState" class="hidden text-center py-12 text-gray-500">No projects match your filters.</div>
+  </div>
+
+  <div class="text-center text-xs text-gray-600 mt-6">Business Ops Team · Bybit · Powered by J.Z.Bot</div>
+</div>
+
+<script>
+const TODAY = new Date();
+
+const rawData = [
+  // CAMPAIGN TEAM
+  { team: 'campaign', name: 'Boost Battle v3', pic: 'grace.liu', status: 'developing', priority: 'P0', okr: ['Revenue'], deadline: new Date('2026-05-07'), notes: 'Landing page development, including mini-program and H5/web. Requires Product & Dev resources.' },
+  { team: 'campaign', name: 'RWA 1M Acquisition', pic: 'yini.liao', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors', 'eFTD'], deadline: new Date('2026-08-19'), notes: '(1) MRD review 4.10; (2) PRD 4.13-4.17' },
+  { team: 'campaign', name: 'RWA Trading Competition', pic: 'grace.liu', status: 'Writing MRD', priority: 'P0', okr: ['Revenue'], deadline: new Date('2026-04-25'), notes: 'Merge with TMGP' },
+  { team: 'campaign', name: 'Hot Token Campaign Template', pic: 'cayman.heng', status: 'PRD to be review', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-08-25'), notes: '' },
+  { team: 'campaign', name: 'USDC Trading and Saving Campaign', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P1', okr: ['Revenue'], deadline: new Date('2026-05-19'), notes: '' },
+  { team: 'campaign', name: 'Paid Media Retargeting Tasks', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-07-29'), notes: '' },
+  { team: 'campaign', name: 'FIFA', pic: 'cayman.heng', status: 'MRD to be review', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-05-21'), notes: '' },
+  { team: 'campaign', name: 'WSOT', pic: 'grace.liu', status: 'Writing MRD', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-08-04'), notes: '' },
+  { team: 'campaign', name: 'Wednesday Airdrop V4', pic: 'yu.zhu', status: 'TRD to be review', priority: 'P0', okr: ['eFTD'], deadline: new Date('2026-04-29'), notes: '' },
+  { team: 'campaign', name: 'Bybit Meta', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-08-25'), notes: '' },
+  { team: 'campaign', name: 'AI Agent Trading Competition', pic: 'yini.liao', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors', 'Revenue'], deadline: new Date('2026-05-28'), notes: 'MRD Apr, Dev early May, Launch early Jul' },
+  { team: 'campaign', name: 'Position Insurance', pic: 'yu.zhu', status: 'TRD to be review', priority: 'P1', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-28'), notes: '' },
+  { team: 'campaign', name: 'Marketing Ops OKR Dashboard', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P0', okr: ['eFTD', 'eFTT', 'Cumulative Transactors', 'Revenue'], deadline: new Date('2026-06-29'), notes: '' },
+  { team: 'campaign', name: 'Company & Campaign ROI Dashboard', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P0', okr: [], deadline: new Date('2026-04-26'), notes: '' },
+  { team: 'campaign', name: 'Campaign Management Dashboard', pic: 'grace.liu', status: 'Writing MRD', priority: 'P0', okr: [], deadline: new Date('2026-07-29'), notes: '' },
+  { team: 'campaign', name: 'Web2 Campaign Template', pic: 'yini.liao', status: 'Writing MRD', priority: 'P1', okr: [], deadline: new Date('2026-07-29'), notes: '' },
+  { team: 'campaign', name: 'BTC vs Gold', pic: 'grace.liu', status: '', priority: 'P-1', okr: [], deadline: new Date('2026-04-30'), notes: '' },
+  { team: 'campaign', name: '用户分层运营', pic: 'yu.zhu', status: '', priority: 'P-1', okr: ['Revenue'], deadline: null, notes: '' },
+  { team: 'campaign', name: 'eFTD A/B Dedup', pic: 'cayman.heng', status: 'Launched', priority: 'P0', okr: ['Cost Saving'], deadline: new Date('2026-03-06'), notes: '' },
+  { team: 'campaign', name: 'Referral League', pic: 'cayman.heng', status: 'Launched', priority: 'P1', okr: ['eFTD'], deadline: new Date('2026-03-27'), notes: '' },
+  { team: 'campaign', name: 'BTC Price Protection', pic: 'cayman.heng', status: 'Launched', priority: 'P2', okr: ['eFTD', 'eFTT'], deadline: new Date('2026-03-10'), notes: '' },
+  { team: 'campaign', name: 'Long or Short?', pic: 'yini.liao', status: '', priority: 'P0', okr: [], deadline: null, notes: '' },
+  { team: 'campaign', name: 'Merge SEER & OSOP', pic: 'grace.liu', status: '', priority: 'P0', okr: [], deadline: null, notes: '' },
+  { team: 'campaign', name: 'Trading Competition Template', pic: 'grace.liu', status: '', priority: 'P0', okr: ['Revenue'], deadline: null, notes: '' },
+  // OPS EDGE TEAM
+  { team: 'opsedge', name: 'External URL Tracking System', pic: 'nicky.yeung', status: 'PRD to be review', priority: 'P-1', okr: [], deadline: new Date('2026-04-20'), notes: 'Busi-Tech Connection Biweekly — 外部流量追踪归因系统' },
+  { team: 'opsedge', name: 'AI Passive Recommendation when users search', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-22'), notes: '' },
+  { team: 'opsedge', name: 'AI Active trigger timing, targeting, contents', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-05-01'), notes: 'Kick off new meeting, collect all access.' },
+  { team: 'opsedge', name: 'All-in-one Performance Dashboard', pic: 'nicky.yeung', status: 'Confirming MRD Internally', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-20'), notes: '' },
+  { team: 'opsedge', name: 'Automation: Product Promotion 100% Auto', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-22'), notes: '' },
+  { team: 'opsedge', name: 'AB Testing System', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P-1', okr: [], deadline: new Date('2026-08-29'), notes: 'For UJ, Campaign, Learn, User-Reach' },
+];
+
+let currentTeam = 'campaign';
+
+function formatDate(d) {
+  if (!d) return '—';
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function daysLeft(d) {
+  if (!d) return null;
+  return Math.ceil((d - TODAY) / 86400000);
+}
+
+function getStatusClass(s) {
+  if (!s) return 'status-default';
+  const sl = s.toLowerCase();
+  if (sl === 'launched') return 'status-launched';
+  if (sl === 'developing') return 'status-developing';
+  if (sl.includes('writing mrd') || sl.includes('mrd to be review')) return 'status-mrd';
+  if (sl.includes('prd to be review')) return 'status-prd';
+  if (sl.includes('trd')) return 'status-trd';
+  if (sl.includes('confirming')) return 'status-confirming';
+  return 'status-default';
+}
+
+function getPriorityClass(p) {
+  if (p === 'P0') return 'priority-p0';
+  if (p === 'P1') return 'priority-p1';
+  if (p === 'P2') return 'priority-p2';
+  return 'priority-pm1';
+}
+
+function getRowClass(item) {
+  if (item.status === 'Launched') return 'row-normal';
+  const d = daysLeft(item.deadline);
+  if (d !== null && d <= 7) return 'row-urgent';
+  if (d !== null && d <= 14) return 'row-warning';
+  return 'row-normal';
+}
+
+function renderDaysLeft(item) {
+  if (item.status === 'Launched') return '<span class="text-green-400 text-xs">✅ Done</span>';
+  const d = daysLeft(item.deadline);
+  if (d === null) return '<span class="text-gray-600">—</span>';
+  if (d < 0) return `<span style="color:#f87171;font-weight:700">Overdue ${Math.abs(d)}d</span>`;
+  if (d <= 7) return `<span style="color:#f87171;font-weight:700">⚠️ ${d}d</span>`;
+  if (d <= 14) return `<span style="color:#fbbf24;font-weight:600">${d}d</span>`;
+  return `<span class="text-gray-400">${d}d</span>`;
+}
+
+function renderStats(data) {
+  const total = data.length;
+  const launched = data.filter(d => d.status === 'Launched').length;
+  const developing = data.filter(d => d.status === 'developing').length;
+  const atRisk = data.filter(d => {
+    if (d.status === 'Launched') return false;
+    const dl = daysLeft(d.deadline);
+    return dl !== null && dl <= 14;
+  }).length;
+  document.getElementById('statCards').innerHTML = `
+    <div class="stat-card"><div class="text-2xl font-bold text-white">${total}</div><div class="text-xs text-gray-500 mt-1">Total Projects</div></div>
+    <div class="stat-card" style="border-color:#7f1d1d"><div class="text-2xl font-bold text-red-400">${atRisk}</div><div class="text-xs text-gray-500 mt-1">⚠️ At Risk (≤14d)</div></div>
+    <div class="stat-card" style="border-color:#1e3a5f"><div class="text-2xl font-bold text-blue-400">${developing}</div><div class="text-xs text-gray-500 mt-1">🔵 Developing</div></div>
+    <div class="stat-card" style="border-color:#14532d"><div class="text-2xl font-bold text-green-400">${launched}</div><div class="text-xs text-gray-500 mt-1">✅ Launched</div></div>
+  `;
+}
+
+function renderAlerts(data) {
+  const urgent = data.filter(d => {
+    if (d.status === 'Launched') return false;
+    const dl = daysLeft(d.deadline);
+    return d.priority === 'P0' && dl !== null && dl <= 7;
+  });
+  const banner = document.getElementById('alertBanner');
+  if (!urgent.length) { banner.innerHTML = ''; return; }
+  banner.innerHTML = `<div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:8px;padding:10px 16px;color:#fca5a5;font-size:13px">🚨 <strong>P0 Urgent:</strong> ${urgent.map(u => `${u.name.trim()} (${daysLeft(u.deadline)}d left)`).join(' · ')}</div>`;
+}
+
+function populateFilters(data) {
+  const statuses = [...new Set(data.map(d => d.status).filter(Boolean))].sort();
+  const pics = [...new Set(data.map(d => d.pic).filter(Boolean))].sort();
+  const sf = document.getElementById('statusFilter');
+  const pf = document.getElementById('picFilter');
+  const cs = sf.value, cp = pf.value;
+  sf.innerHTML = '<option value="">All Status</option>' + statuses.map(s => `<option value="${s}" ${s===cs?'selected':''}>${s}</option>`).join('');
+  pf.innerHTML = '<option value="">All PIC</option>' + pics.map(p => `<option value="${p}" ${p===cp?'selected':''}>${p.replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join('');
+}
+
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const priority = document.getElementById('priorityFilter').value;
+  const pic = document.getElementById('picFilter').value;
+  const teamData = rawData.filter(d => d.team === currentTeam);
+  const filtered = teamData.filter(d => {
+    if (search && !d.name.toLowerCase().includes(search)) return false;
+    if (status && d.status !== status) return false;
+    if (priority && d.priority !== priority) return false;
+    if (pic && d.pic !== pic) return false;
+    return true;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  const sorted = [...data].sort((a, b) => {
+    if (a.status === 'Launched' && b.status !== 'Launched') return 1;
+    if (b.status === 'Launched' && a.status !== 'Launched') return -1;
+    const da = a.deadline ? a.deadline.getTime() : Infinity;
+    const db = b.deadline ? b.deadline.getTime() : Infinity;
+    return da - db;
+  });
+  if (!sorted.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = sorted.map((item, i) => {
+    const picDisplay = item.pic.replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const hasNotes = item.notes && item.notes.trim();
+    return `
+      <tr class="expandable ${getRowClass(item)}" onclick="toggleNotes('n${i}')">
+        <td class="text-white font-medium">${item.name.trim()}${hasNotes ? ' <span style="color:#4b5563;font-size:10px">▼</span>' : ''}</td>
+        <td><span class="text-gray-300">${picDisplay}</span></td>
+        <td><span class="badge ${getStatusClass(item.status)}">${item.status || '—'}</span></td>
+        <td>${item.priority ? `<span class="badge ${getPriorityClass(item.priority)}">${item.priority}</span>` : '<span class="text-gray-600">—</span>'}</td>
+        <td class="text-gray-400" style="font-size:11px">${item.okr.length ? item.okr.join(', ') : '—'}</td>
+        <td class="text-gray-400">${formatDate(item.deadline)}</td>
+        <td>${renderDaysLeft(item)}</td>
+      </tr>
+      ${hasNotes ? `<tr id="n${i}" class="notes-row"><td colspan="7" style="background:#0d0f1a;color:#9ca3af;font-size:12px;padding:8px 16px;font-style:italic">${item.notes}</td></tr>` : ''}
+    `;
+  }).join('');
+}
+
+function toggleNotes(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function switchTab(team) {
+  currentTeam = team;
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && team === 'campaign') || (i === 1 && team === 'opsedge'));
+  });
+  document.getElementById('searchInput').value = '';
+  document.getElementById('priorityFilter').value = '';
+  const teamData = rawData.filter(d => d.team === team);
+  populateFilters(teamData);
+  renderStats(teamData);
+  renderAlerts(teamData);
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('priorityFilter').value = '';
+  document.getElementById('picFilter').value = '';
+  applyFilters();
+}
+
+document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+switchTab('campaign');
+</script>
+</body>
+</html>
