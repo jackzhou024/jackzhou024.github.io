@@ -3,297 +3,350 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Business Ops Dashboard</title>
+<title>Business Ops Dashboard · Bybit</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { background: #0f1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; }
-  .card { background: #1a1d27; border: 1px solid #2d3148; }
-  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .status-launched { background: #14532d; color: #4ade80; }
-  .status-developing { background: #1e3a5f; color: #60a5fa; }
-  .status-mrd { background: #451a03; color: #fb923c; }
-  .status-prd { background: #3b1f00; color: #f97316; }
-  .status-trd { background: #2d1b69; color: #a78bfa; }
-  .status-confirming { background: #422006; color: #fbbf24; }
-  .status-default { background: #1f2937; color: #9ca3af; }
-  .priority-p0 { background: #450a0a; color: #f87171; }
-  .priority-p1 { background: #431407; color: #fb923c; }
-  .priority-p2 { background: #1f2937; color: #9ca3af; }
-  .priority-pm1 { background: #1f2937; color: #6b7280; }
-  .row-urgent { border-left: 3px solid #ef4444; }
-  .row-warning { border-left: 3px solid #f59e0b; }
-  .row-normal { border-left: 3px solid transparent; }
-  tr.expandable { cursor: pointer; }
-  tr.expandable:hover td { background: #1e2235 !important; }
-  .notes-row { display: none; }
-  .notes-row.open { display: table-row; }
-  .tab-btn { padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
-  .tab-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-  .tab-btn:not(.active) { background: transparent; color: #6b7280; border-color: #2d3148; }
-  .tab-btn:not(.active):hover { border-color: #4b5563; color: #9ca3af; }
-  select, input { background: #1a1d27; border: 1px solid #2d3148; color: #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
-  select:focus, input:focus { outline: none; border-color: #3b82f6; }
-  th { background: #13151f; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; }
-  td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #1e2235; vertical-align: middle; }
-  .stat-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 16px 20px; }
+body{background:#0f1117;color:#e2e8f0;font-family:'Inter',system-ui,sans-serif}
+.card{background:#1a1d27;border:1px solid #2d3148}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap}
+.s-launched{background:#14532d;color:#4ade80}
+.s-developing{background:#1e3a5f;color:#60a5fa}
+.s-testnet{background:#1a3a2a;color:#34d399}
+.s-mrd{background:#451a03;color:#fb923c}
+.s-prd{background:#3b1f00;color:#f97316}
+.s-trd{background:#2d1b69;color:#a78bfa}
+.s-trd-rev{background:#1e1b4b;color:#818cf8}
+.s-conf{background:#422006;color:#fbbf24}
+.s-tbc{background:#1f2937;color:#6b7280}
+.s-contract{background:#1c1917;color:#a8a29e}
+.s-default{background:#1f2937;color:#9ca3af}
+.p-p0{background:#450a0a;color:#f87171}
+.p-p1{background:#431407;color:#fb923c}
+.p-p2{background:#1f2937;color:#9ca3af}
+.p-pm1{background:#1e1b4b;color:#818cf8}
+.row-urgent{border-left:3px solid #ef4444}
+.row-warn{border-left:3px solid #f59e0b}
+.row-norm{border-left:3px solid transparent}
+tr.xrow:hover td{background:#1e2235!important;cursor:pointer}
+.notes-row{display:none}
+.notes-row.open{display:table-row}
+.tab-btn{padding:7px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;border:1px solid transparent;white-space:nowrap}
+.tab-btn.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tab-btn:not(.active){background:transparent;color:#6b7280;border-color:#2d3148}
+.tab-btn:not(.active):hover{border-color:#4b5563;color:#9ca3af}
+select,input{background:#1a1d27;border:1px solid #2d3148;color:#e2e8f0;border-radius:6px;padding:6px 10px;font-size:13px}
+select:focus,input:focus{outline:none;border-color:#3b82f6}
+th{background:#13151f;color:#6b7280;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;position:sticky;top:0;z-index:10}
+td{padding:9px 12px;font-size:13px;border-bottom:1px solid #1e2235;vertical-align:middle}
+.stat-card{background:#1a1d27;border:1px solid #2d3148;border-radius:12px;padding:14px 18px}
+.scrollable{overflow-x:auto}
+a.mrd-link{color:#60a5fa;text-decoration:none;font-size:11px}
+a.mrd-link:hover{text-decoration:underline}
 </style>
 </head>
-<body class="min-h-screen p-6">
-<div class="max-w-7xl mx-auto">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-white">📊 Business Ops Dashboard</h1>
-      <p class="text-gray-500 text-sm mt-1">Campaign Team &amp; Ops Edge Team · Bybit</p>
-    </div>
-    <div class="text-right">
-      <div class="text-xs text-gray-500">Last updated</div>
-      <div class="text-sm text-gray-300" id="lastUpdated"></div>
-    </div>
+<body class="min-h-screen p-4">
+<div class="max-w-screen-xl mx-auto">
+
+<div class="flex items-center justify-between mb-5">
+  <div>
+    <h1 class="text-xl font-bold text-white">📊 Business Ops Dashboard</h1>
+    <p class="text-gray-500 text-xs mt-1">Bybit · All Teams · Real-time from Bitable</p>
   </div>
-
-  <div class="flex gap-3 mb-6">
-    <button class="tab-btn active" onclick="switchTab('campaign')">🏁 Campaign Team</button>
-    <button class="tab-btn" onclick="switchTab('opsedge')">⚙️ Ops Edge Team</button>
+  <div class="text-right">
+    <div class="text-xs text-gray-600">Data synced</div>
+    <div class="text-xs text-gray-400" id="syncTime">2026-04-12 12:33 UTC</div>
   </div>
+</div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="statCards"></div>
+<!-- Tabs -->
+<div class="flex flex-wrap gap-2 mb-5" id="tabBar"></div>
 
-  <div id="alertBanner" class="mb-4"></div>
+<!-- Stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="statCards"></div>
 
-  <div class="card rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center">
-    <input type="text" id="searchInput" placeholder="🔍 Search project..." class="flex-1 min-w-48" oninput="applyFilters()">
-    <select id="statusFilter" onchange="applyFilters()"><option value="">All Status</option></select>
-    <select id="priorityFilter" onchange="applyFilters()">
-      <option value="">All Priority</option>
-      <option value="P0">P0</option>
-      <option value="P1">P1</option>
-      <option value="P-1">P-1</option>
-      <option value="P2">P2</option>
-    </select>
-    <select id="picFilter" onchange="applyFilters()"><option value="">All PIC</option></select>
-    <button onclick="resetFilters()" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-1 border border-gray-700 rounded-md">Reset</button>
-  </div>
+<!-- Alert -->
+<div id="alertBanner" class="mb-3"></div>
 
-  <div class="card rounded-xl overflow-hidden">
-    <table class="w-full" id="projectTable">
-      <thead>
-        <tr>
-          <th class="text-left">Project Name</th>
-          <th class="text-left">PIC</th>
-          <th class="text-left">Status</th>
-          <th class="text-left">Priority</th>
-          <th class="text-left">OKR Metrics</th>
-          <th class="text-left">Deadline</th>
-          <th class="text-left">Days Left</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <div id="emptyState" class="hidden text-center py-12 text-gray-500">No projects match your filters.</div>
-  </div>
+<!-- Filters -->
+<div class="card rounded-xl p-3 mb-4 flex flex-wrap gap-3 items-center">
+  <input type="text" id="searchInput" placeholder="🔍 Search project..." class="flex-1 min-w-40" oninput="applyFilters()">
+  <select id="statusFilter" onchange="applyFilters()"><option value="">All Status</option></select>
+  <select id="priorityFilter" onchange="applyFilters()">
+    <option value="">All Priority</option>
+    <option>P0</option><option>P1</option><option>P2</option><option value="P-1">P-1</option>
+  </select>
+  <select id="picFilter" onchange="applyFilters()"><option value="">All PIC</option></select>
+  <button onclick="resetFilters()" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-1 border border-gray-700 rounded-md">Reset</button>
+  <span class="text-xs text-gray-600" id="rowCount"></span>
+</div>
 
-  <div class="text-center text-xs text-gray-600 mt-6">Business Ops Team · Bybit · Powered by J.Z.Bot</div>
+<!-- Table -->
+<div class="card rounded-xl scrollable">
+  <table class="w-full min-w-max" id="projectTable">
+    <thead>
+      <tr>
+        <th class="text-left" style="min-width:200px">Project Name</th>
+        <th class="text-left" style="min-width:120px">PIC</th>
+        <th class="text-left" style="min-width:130px">Status</th>
+        <th class="text-left" style="min-width:60px">Priority</th>
+        <th class="text-left" style="min-width:150px">OKR Metrics</th>
+        <th class="text-left" style="min-width:100px">Deadline</th>
+        <th class="text-left" style="min-width:80px">Days Left</th>
+        <th class="text-left" style="min-width:50px">MRD</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div id="emptyState" class="hidden text-center py-10 text-gray-500 text-sm">No projects match your filters.</div>
+</div>
+
+<div class="text-center text-xs text-gray-700 mt-4">Business Ops Team · Bybit · Powered by J.Z.Bot · Auto-synced from Bitable</div>
 </div>
 
 <script>
 const TODAY = new Date();
-
 const rawData = [
-  // CAMPAIGN TEAM
-  { team: 'campaign', name: 'Boost Battle v3', pic: 'grace.liu', status: 'developing', priority: 'P0', okr: ['Revenue'], deadline: new Date('2026-05-07'), notes: 'Landing page development, including mini-program and H5/web. Requires Product & Dev resources.' },
-  { team: 'campaign', name: 'RWA 1M Acquisition', pic: 'yini.liao', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors', 'eFTD'], deadline: new Date('2026-08-19'), notes: '(1) MRD review 4.10; (2) PRD 4.13-4.17' },
-  { team: 'campaign', name: 'RWA Trading Competition', pic: 'grace.liu', status: 'Writing MRD', priority: 'P0', okr: ['Revenue'], deadline: new Date('2026-04-25'), notes: 'Merge with TMGP' },
-  { team: 'campaign', name: 'Hot Token Campaign Template', pic: 'cayman.heng', status: 'PRD to be review', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-08-25'), notes: '' },
-  { team: 'campaign', name: 'USDC Trading and Saving Campaign', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P1', okr: ['Revenue'], deadline: new Date('2026-05-19'), notes: '' },
-  { team: 'campaign', name: 'Paid Media Retargeting Tasks', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-07-29'), notes: '' },
-  { team: 'campaign', name: 'FIFA', pic: 'cayman.heng', status: 'MRD to be review', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-05-21'), notes: '' },
-  { team: 'campaign', name: 'WSOT', pic: 'grace.liu', status: 'Writing MRD', priority: 'P-1', okr: ['Revenue'], deadline: new Date('2026-08-04'), notes: '' },
-  { team: 'campaign', name: 'Wednesday Airdrop V4', pic: 'yu.zhu', status: 'TRD to be review', priority: 'P0', okr: ['eFTD'], deadline: new Date('2026-04-29'), notes: '' },
-  { team: 'campaign', name: 'Bybit Meta', pic: 'felix.sutanto', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-08-25'), notes: '' },
-  { team: 'campaign', name: 'AI Agent Trading Competition', pic: 'yini.liao', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors', 'Revenue'], deadline: new Date('2026-05-28'), notes: 'MRD Apr, Dev early May, Launch early Jul' },
-  { team: 'campaign', name: 'Position Insurance', pic: 'yu.zhu', status: 'TRD to be review', priority: 'P1', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-28'), notes: '' },
-  { team: 'campaign', name: 'Marketing Ops OKR Dashboard', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P0', okr: ['eFTD', 'eFTT', 'Cumulative Transactors', 'Revenue'], deadline: new Date('2026-06-29'), notes: '' },
-  { team: 'campaign', name: 'Company & Campaign ROI Dashboard', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P0', okr: [], deadline: new Date('2026-04-26'), notes: '' },
-  { team: 'campaign', name: 'Campaign Management Dashboard', pic: 'grace.liu', status: 'Writing MRD', priority: 'P0', okr: [], deadline: new Date('2026-07-29'), notes: '' },
-  { team: 'campaign', name: 'Web2 Campaign Template', pic: 'yini.liao', status: 'Writing MRD', priority: 'P1', okr: [], deadline: new Date('2026-07-29'), notes: '' },
-  { team: 'campaign', name: 'BTC vs Gold', pic: 'grace.liu', status: '', priority: 'P-1', okr: [], deadline: new Date('2026-04-30'), notes: '' },
-  { team: 'campaign', name: '用户分层运营', pic: 'yu.zhu', status: '', priority: 'P-1', okr: ['Revenue'], deadline: null, notes: '' },
-  { team: 'campaign', name: 'eFTD A/B Dedup', pic: 'cayman.heng', status: 'Launched', priority: 'P0', okr: ['Cost Saving'], deadline: new Date('2026-03-06'), notes: '' },
-  { team: 'campaign', name: 'Referral League', pic: 'cayman.heng', status: 'Launched', priority: 'P1', okr: ['eFTD'], deadline: new Date('2026-03-27'), notes: '' },
-  { team: 'campaign', name: 'BTC Price Protection', pic: 'cayman.heng', status: 'Launched', priority: 'P2', okr: ['eFTD', 'eFTT'], deadline: new Date('2026-03-10'), notes: '' },
-  { team: 'campaign', name: 'Long or Short?', pic: 'yini.liao', status: '', priority: 'P0', okr: [], deadline: null, notes: '' },
-  { team: 'campaign', name: 'Merge SEER & OSOP', pic: 'grace.liu', status: '', priority: 'P0', okr: [], deadline: null, notes: '' },
-  { team: 'campaign', name: 'Trading Competition Template', pic: 'grace.liu', status: '', priority: 'P0', okr: ['Revenue'], deadline: null, notes: '' },
-  // OPS EDGE TEAM
-  { team: 'opsedge', name: 'External URL Tracking System', pic: 'nicky.yeung', status: 'PRD to be review', priority: 'P-1', okr: [], deadline: new Date('2026-04-20'), notes: 'Busi-Tech Connection Biweekly — 外部流量追踪归因系统' },
-  { team: 'opsedge', name: 'AI Passive Recommendation when users search', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-22'), notes: '' },
-  { team: 'opsedge', name: 'AI Active trigger timing, targeting, contents', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P-1', okr: ['Cumulative Transactors'], deadline: new Date('2026-05-01'), notes: 'Kick off new meeting, collect all access.' },
-  { team: 'opsedge', name: 'All-in-one Performance Dashboard', pic: 'nicky.yeung', status: 'Confirming MRD Internally', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-20'), notes: '' },
-  { team: 'opsedge', name: 'Automation: Product Promotion 100% Auto', pic: 'nicky.yeung', status: 'Writing MRD', priority: 'P0', okr: ['Cumulative Transactors'], deadline: new Date('2026-04-22'), notes: '' },
-  { team: 'opsedge', name: 'AB Testing System', pic: 'yu.zhu', status: 'Writing MRD', priority: 'P-1', okr: [], deadline: new Date('2026-08-29'), notes: 'For UJ, Campaign, Learn, User-Reach' },
+  {team:'campaign',name:'Boost Battle v3',pic:'grace.liu',status:'developing',priority:'P0',okr:["Revenue"],deadline:new Date('2026/05/09'),notes:'Landing page development, including mini-program and H5/web. Requires Product & Dev resources.',mrd:''},
+  {team:'web2',name:'H5 Web 2 LP',pic:'jack.mzy',status:'Writing MRD',priority:'P0',okr:["Signup"],deadline:new Date('2026/05/31'),notes:'Building LPs on builder is limited. Web2 team launching 14 partnerships in H1.',mrd:''},
+  {team:'uj',name:'App Rewards Hub Gamification area',pic:'isa.jia, connie.pu',status:'PRD to be review',priority:'P0',okr:["Cumulative Transactors", "Revenue"],deadline:null,notes:'Pro version - Ops area for DAUT improvement',mrd:'https://uponly.larksuite.com/docx/KqdCdTNZ8oa7OMx42LAuxBgHsJe'},
+  {team:'uj',name:'DAUT Productization Plan',pic:'isa.jia, connie.pu',status:'PRD to be review',priority:'P0',okr:["Cumulative Transactors"],deadline:new Date('2026/04/21'),notes:'DAUT Campaign → DAUT product page → Insert to Rewards Hub',mrd:'https://uponly.larksuite.com/docx/HVbddASSMoEGRwxWajdutrFGsoe'},
+  {team:'learn',name:'Learn CMS Transfer from ContentStack',pic:'phoebe.lee',status:'Writing MRD',priority:'P0',okr:["Cost Saving"],deadline:new Date('2026/08/30'),notes:'Big project, priority high but can be finished by H1.',mrd:''},
+  {team:'learn',name:'Review System Optimization (AI)',pic:'phoebe.lee',status:'Confirming MRD Internally',priority:'P2',okr:["Cost Saving"],deadline:new Date('2026/08/30'),notes:'MRD almost ready.',mrd:''},
+  {team:'learn',name:'Bybit Learn x Universities Partnership',pic:'phoebe.lee',status:'Under contract review',priority:'P2',okr:["Signup"],deadline:new Date('2026/08/30'),notes:'Under legal contract review, compliance issue.',mrd:''},
+  {team:'learn',name:'Bybit Learn and Trade center 2nd phase',pic:'phoebe.lee',status:'Writing MRD',priority:'P0',okr:["eFTD", "eFTT", "Cumulative Transactors"],deadline:new Date('2026/08/30'),notes:'1st version went online April 9th, 2nd optimization after data check.',mrd:''},
+  {team:'seo',name:'SSR for Content Heavy and SEO Pages',pic:'amao.chou',status:'Writing MRD',priority:'P-1',okr:["Signup", "GEO"],deadline:new Date('2028/05/09'),notes:'4/1 Still working on MRD.',mrd:'https://uponly.larksuite.com/wiki/DTx3wb5vNidI5Qka8xtuMEKksIc'},
+  {team:'seo',name:'TradFi & RWA Infrastructure',pic:'amao.chou',status:'PRD to be review',priority:'P0',okr:["Cumulative Transactors", "eFTD", "eFTT"],deadline:new Date('2028/05/16'),notes:'4/1 MRD aligned internally, scheduled for development.',mrd:'https://uponly.larksuite.com/wiki/R912wzdlLiXCp1kzco2uVN28sjh'},
+  {team:'seo',name:'Contextual Navigation',pic:'sheikh.bilal, amao.chou',status:'Writing MRD',priority:'P-1',okr:["eFTD", "Cumulative Transactors"],deadline:new Date('2028/07/12'),notes:'4/1 Generating Navigation Strategy',mrd:''},
+  {team:'seo',name:'Crypto Wiki',pic:'amao.chou, sheikh.bilal',status:'Launched',priority:'P0',okr:["Signup", "GEO", "eFTD"],deadline:new Date('2028/06/14'),notes:'MVP live, AI article creation workflow established.',mrd:'https://uponly.larksuite.com/wiki/TBCKw6RNxioC6tkqGACuExsDsrd'},
+  {team:'seo',name:'Byreal SEO',pic:'amao.chou',status:'developing',priority:'P1',okr:["eFTT", "Cumulative Transactors"],deadline:new Date('2028/06/29'),notes:'4/1 MRD complete. Technical constraints, aligning with engineering.',mrd:''},
+  {team:'seo',name:'Multilingual Architecture',pic:'amao.chou',status:'Writing MRD',priority:'P0',okr:["Signup", "eFTD"],deadline:new Date('2028/09/29'),notes:'4/1 Still working on MRD.',mrd:''},
+  {team:'learn',name:'Learn Homepage Personalisation',pic:'seraph.sun',status:'TRD reviewed',priority:'P-1',okr:["Signup", "eFTD"],deadline:new Date('2028/04/18'),notes:'4/1 Working with jack.mzy on PRD.',mrd:'https://uponly.larksuite.com/wiki/FALSwcfJhiLNl3keY46uGkifsOh'},
+  {team:'learn',name:'AI-Powered Unified Learn Widget',pic:'seraph.sun',status:'Confirming MRD Internally',priority:'P0',okr:["eFTD", "Signup"],deadline:new Date('2028/04/19'),notes:'4/1 MRD complete, pending internal review.',mrd:'https://uponly.larksuite.com/docx/ApfydM1HUoj7JFxDbPWuWrzjshb'},
+  {team:'seo',name:'ROI dashboard for SEO (OSP)',pic:'sheikh.bilal, amao.chou',status:'Confirming MRD Internally',priority:'P-1',okr:["Cost Saving"],deadline:new Date('2028/04/29'),notes:'4/1 MRD complete, pending internal review.',mrd:'https://uponly.larksuite.com/wiki/O0wzwTopaiZpuCk8ehKuMGeos9c'},
+  {team:'learn',name:'Learn campaign LP revamp',pic:'davier.mu',status:'TBC',priority:'P1',okr:["Signup", "eFTD"],deadline:new Date('2026/08/29'),notes:'Facilitate revamp of Learn campaign landing pages.',mrd:'https://uponly.larksuite.com/docx/LJRxdM2JGofuKvxpYGTu0V5BsiR'},
+  {team:'uj',name:'ByX infrastructure feature batch',pic:'jessie.liu',status:'Confirming MRD Internally',priority:'P-1',okr:["Revenue", "Cumulative Transactors"],deadline:new Date('2026/04/29'),notes:'',mrd:'https://uponly.larksuite.com/wiki/EYCKwE3bniDfvbkhXwLu2QuYsHf'},
+  {team:'uj',name:'ByX AIGC Infrastructure batch',pic:'jessie.liu',status:'MRD to be review',priority:'P0',okr:["Revenue", "Cumulative Transactors"],deadline:new Date('2026/05/30'),notes:'',mrd:'https://uponly.larksuite.com/wiki/EYCKwE3bniDfvbkhXwLu2QuYsHf'},
+  {team:'uj',name:'Referral gamification: Cricket season',pic:'norah.li',status:'testnet',priority:'P0',okr:["eFTD"],deadline:null,notes:'',mrd:'https://uponly.larksuite.com/docx/EpGjdRV9foMiw4xyRIOuaLHWshg'},
+  {team:'uj',name:'Referral evergreen: General revamp',pic:'norah.li',status:'Confirming MRD Internally',priority:'P0',okr:["eFTD"],deadline:null,notes:'',mrd:'https://uponly.larksuite.com/docx/G3uQd91YTokc6TxpNkBuWAkisHf'},
+  {team:'uj',name:'Referral evergreen: M2 UJ revamp',pic:'norah.li',status:'Writing MRD',priority:'P0',okr:["eFTD"],deadline:null,notes:'',mrd:''},
+  {team:'uj',name:'Referral evergreen: region config',pic:'norah.li',status:'Writing MRD',priority:'P0',okr:["eFTD"],deadline:null,notes:'',mrd:''},
+  {team:'uj',name:'Referral happy hours incentives',pic:'norah.li',status:'developing',priority:'P0',okr:["eFTD"],deadline:null,notes:'',mrd:'https://uponly.larksuite.com/wiki/LYpxwR9kWiCatUkMyXTuugFts3b'},
+  {team:'campaign',name:'RWA 1M Acquisition',pic:'yini.liao',status:'Writing MRD',priority:'P-1',okr:["Cumulative Transactors", "eFTD"],deadline:new Date('2026/10/20'),notes:'(1) MRD review 4.10; (2) PRD 4.13-4.17',mrd:''},
+  {team:'campaign',name:'RWA Trading Competition (Merge TMGP)',pic:'grace.liu',status:'Writing MRD',priority:'P0',okr:["Revenue"],deadline:new Date('2026/06/13'),notes:'',mrd:''},
+  {team:'campaign',name:'Hot Token Campaign Template',pic:'cayman.heng',status:'PRD to be review',priority:'P-1',okr:["Revenue"],deadline:new Date('2026/12/30'),notes:'',mrd:'https://uponly.larksuite.com/wiki/AdX2wenltio7WxkFskCuZakvsFd'},
+  {team:'campaign',name:'USDC Trading and Saving Campaign',pic:'felix.sutanto',status:'Writing MRD',priority:'P1',okr:["Revenue"],deadline:new Date('2026/05/20'),notes:'',mrd:''},
+  {team:'campaign',name:'Paid Media Retargeting Tasks',pic:'felix.sutanto',status:'Writing MRD',priority:'P0',okr:["Cumulative Transactors"],deadline:new Date('2026/09/29'),notes:'',mrd:''},
+  {team:'campaign',name:'FIFA',pic:'cayman.heng',status:'MRD to be review',priority:'P-1',okr:["Revenue"],deadline:new Date('2026/07/20'),notes:'',mrd:''},
+  {team:'campaign',name:'WSOT',pic:'grace.liu',status:'Writing MRD',priority:'P-1',okr:["Revenue"],deadline:new Date('2026/10/06'),notes:'',mrd:''},
+  {team:'campaign',name:'Wednesday Airdrop V4',pic:'yu.zhu',status:'TRD to be review',priority:'P0',okr:["eFTD"],deadline:new Date('2026/06/30'),notes:'',mrd:''},
+  {team:'campaign',name:'Bybit Meta',pic:'felix.sutanto',status:'Writing MRD',priority:'P-1',okr:["Cumulative Transactors"],deadline:new Date('2026/12/30'),notes:'',mrd:''},
+  {team:'campaign',name:'AI Agent Trading Competition',pic:'yini.liao',status:'Writing MRD',priority:'P-1',okr:["Cumulative Transactors", "Revenue"],deadline:new Date('2026/08/02'),notes:'(1) MRD Apr, (2) Dev early May, (3) Launch early Jul',mrd:''},
+  {team:'campaign',name:'Position Insurance',pic:'yu.zhu',status:'TRD to be review',priority:'P1',okr:["Cumulative Transactors"],deadline:new Date('2026/05/23'),notes:'',mrd:''},
+  {team:'opsedge',name:'External URL Tracking System',pic:'nicky.yeung',status:'PRD to be review',priority:'P-1',okr:[],deadline:new Date('2026/04/17'),notes:'Busi-Tech Connection Biweekly — 外部流量追踪归因系统',mrd:'https://uponly.larksuite.com/docx/BiupdWXDCoxUY0xxq6AuecnwsIf'},
+  {team:'opsedge',name:'AI Passive Recommendation (search)',pic:'nicky.yeung',status:'Writing MRD',priority:'P-1',okr:["Cumulative Transactors"],deadline:new Date('2026/04/24'),notes:'',mrd:''},
+  {team:'opsedge',name:'AI Active trigger timing & targeting',pic:'nicky.yeung',status:'Writing MRD',priority:'P-1',okr:["Cumulative Transactors"],deadline:new Date('2026/05/14'),notes:'Kick off new meeting, collect all access.',mrd:''},
+  {team:'opsedge',name:'All-in-one Performance Dashboard',pic:'nicky.yeung',status:'Confirming MRD Internally',priority:'P0',okr:["Cumulative Transactors"],deadline:new Date('2026/04/17'),notes:'',mrd:''},
+  {team:'opsedge',name:'Automation: Product Promotion 100% Auto',pic:'nicky.yeung',status:'Writing MRD',priority:'P0',okr:["Cumulative Transactors"],deadline:new Date('2026/04/24'),notes:'',mrd:''},
+  {team:'campaign',name:'Marketing Ops OKR Dashboard',pic:'yu.zhu',status:'Writing MRD',priority:'P0',okr:["eFTD", "eFTT", "Cumulative Transactors", "Revenue"],deadline:new Date('2026/08/30'),notes:'',mrd:''},
+  {team:'campaign',name:'Company & Campaign ROI Dashboard',pic:'yu.zhu',status:'Writing MRD',priority:'P0',okr:[],deadline:new Date('2026/06/27'),notes:'',mrd:''},
+  {team:'opsedge',name:'AB Testing System',pic:'yu.zhu',status:'Writing MRD',priority:'P-1',okr:[],deadline:new Date('2026/12/30'),notes:'For UJ, Campaign, Learn, User-Reach',mrd:''},
+  {team:'campaign',name:'Campaign Management Dashboard',pic:'grace.liu',status:'Writing MRD',priority:'P0',okr:[],deadline:new Date('2026/09/29'),notes:'',mrd:''},
+  {team:'campaign',name:'Web2 Campaign Template',pic:'yini.liao',status:'Writing MRD',priority:'P1',okr:[],deadline:new Date('2026/09/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'Re-Activate Campaign [Paid+Direct]',pic:'joyce.koh',status:'Writing MRD',priority:'P-1',okr:["eFTD"],deadline:new Date('2026/06/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'Recall Spot Campaign [Paid+Direct]',pic:'joyce.koh',status:'Writing MRD',priority:'P0',okr:["Cumulative Transactors"],deadline:new Date('2026/06/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'SOP of schedule push/email retargeting',pic:'joyce.koh',status:'TBC',priority:'P1',okr:["Cost Saving"],deadline:new Date('2026/06/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'Exclusive Paid Media TradFi Campaign',pic:'cheryl.lee',status:'Writing MRD',priority:'P-1',okr:["Revenue"],deadline:new Date('2026/06/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'Welcome gift - A/B test eFTD definition',pic:'belinda.goh',status:'Writing MRD',priority:'P0',okr:["eFTD", "Revenue"],deadline:new Date('2026/06/29'),notes:'',mrd:''},
+  {team:'paid_media',name:'How to get $100 - UJ optimisation',pic:'belinda.goh',status:'MRD to be review',priority:'P1',okr:["eFTD", "Revenue"],deadline:new Date('2026/06/29'),notes:'7/4: Shared MRD with UJ team.',mrd:''},
+  {team:'paid_media',name:'Paid Media team PIC change',pic:'annie.ong',status:'',priority:'P-1',okr:["eFTD", "Revenue"],deadline:new Date('2026/05/07'),notes:'Skoni said will change PIC since Q1, still no update.',mrd:''},
+  {team:'campaign',name:'BTC vs Gold',pic:'grace.liu',status:'',priority:'P-1',okr:[],deadline:new Date('2026/05/03'),notes:'',mrd:''},
+  {team:'campaign',name:'用户分层运营',pic:'yu.zhu',status:'',priority:'P-1',okr:["Revenue"],deadline:null,notes:'',mrd:''},
+  {team:'campaign',name:'eFTD A/B Dedup',pic:'cayman.heng',status:'Launched',priority:'P0',okr:["Cost Saving"],deadline:new Date('2026/04/07'),notes:'',mrd:'https://uponly.larksuite.com/wiki/F1n1wWcoJiTzahkQGMnuRUOgsHf'},
+  {team:'campaign',name:'Referral League',pic:'cayman.heng',status:'Launched',priority:'P1',okr:["eFTD"],deadline:new Date('2026/04/29'),notes:'',mrd:'https://uponly.larksuite.com/wiki/GZ4MwNL5CicPLtkCkW0u4q0as1e'},
+  {team:'campaign',name:'Long or short?',pic:'yini.liao',status:'',priority:'P0',okr:[],deadline:null,notes:'',mrd:''},
+  {team:'campaign',name:'BTC Price Protection',pic:'cayman.heng',status:'Launched',priority:'P2',okr:["eFTD", "eFTT"],deadline:new Date('2026/04/11'),notes:'',mrd:'https://uponly.larksuite.com/wiki/GZG8wWu6ZiZn4xkoZZPuMwglsee'},
+  {team:'campaign',name:'Merge SEER & OSOP',pic:'grace.liu',status:'',priority:'P0',okr:[],deadline:null,notes:'',mrd:''},
+  {team:'campaign',name:'Trading Competition Template',pic:'grace.liu',status:'',priority:'P0',okr:["Revenue"],deadline:null,notes:'',mrd:''}
+];
+
+const TEAMS = [
+  {id:'campaign',label:'🏁 Campaign'},
+  {id:'opsedge',label:'⚙️ Ops Edge'},
+  {id:'uj',label:'🎯 UJ'},
+  {id:'learn',label:'📚 Learn'},
+  {id:'seo',label:'🔍 SEO'},
+  {id:'paid_media',label:'💰 Paid Media'},
+  {id:'web2',label:'🌐 Web 2'},
 ];
 
 let currentTeam = 'campaign';
 
-function formatDate(d) {
-  if (!d) return '—';
-  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+function getStatusClass(s){
+  if(!s) return 's-default';
+  const sl=s.toLowerCase();
+  if(sl==='launched') return 's-launched';
+  if(sl==='developing') return 's-developing';
+  if(sl==='testnet') return 's-testnet';
+  if(sl.includes('writing mrd')) return 's-mrd';
+  if(sl.includes('mrd to be')) return 's-mrd';
+  if(sl.includes('prd to be')) return 's-prd';
+  if(sl.includes('trd to be')) return 's-trd';
+  if(sl==='trd reviewed') return 's-trd-rev';
+  if(sl.includes('confirming')) return 's-conf';
+  if(sl==='tbc') return 's-tbc';
+  if(sl.includes('contract')) return 's-contract';
+  return 's-default';
 }
 
-function daysLeft(d) {
-  if (!d) return null;
-  return Math.ceil((d - TODAY) / 86400000);
+function getPriorityClass(p){
+  if(p==='P0') return 'p-p0';
+  if(p==='P1') return 'p-p1';
+  if(p==='P2') return 'p-p2';
+  return 'p-pm1';
 }
 
-function getStatusClass(s) {
-  if (!s) return 'status-default';
-  const sl = s.toLowerCase();
-  if (sl === 'launched') return 'status-launched';
-  if (sl === 'developing') return 'status-developing';
-  if (sl.includes('writing mrd') || sl.includes('mrd to be review')) return 'status-mrd';
-  if (sl.includes('prd to be review')) return 'status-prd';
-  if (sl.includes('trd')) return 'status-trd';
-  if (sl.includes('confirming')) return 'status-confirming';
-  return 'status-default';
+function daysLeft(d){
+  if(!d) return null;
+  return Math.ceil((d-TODAY)/86400000);
 }
 
-function getPriorityClass(p) {
-  if (p === 'P0') return 'priority-p0';
-  if (p === 'P1') return 'priority-p1';
-  if (p === 'P2') return 'priority-p2';
-  return 'priority-pm1';
+function fmtDate(d){
+  if(!d) return '—';
+  return d.toISOString().slice(0,10).replace(/-/g,'/');
 }
 
-function getRowClass(item) {
-  if (item.status === 'Launched') return 'row-normal';
-  const d = daysLeft(item.deadline);
-  if (d !== null && d <= 7) return 'row-urgent';
-  if (d !== null && d <= 14) return 'row-warning';
-  return 'row-normal';
+function getRowClass(item){
+  if(item.status==='Launched') return 'row-norm';
+  const dl=daysLeft(item.deadline);
+  if(dl!==null && dl<=7) return 'row-urgent';
+  if(dl!==null && dl<=14) return 'row-warn';
+  return 'row-norm';
 }
 
-function renderDaysLeft(item) {
-  if (item.status === 'Launched') return '<span class="text-green-400 text-xs">✅ Done</span>';
-  const d = daysLeft(item.deadline);
-  if (d === null) return '<span class="text-gray-600">—</span>';
-  if (d < 0) return `<span style="color:#f87171;font-weight:700">Overdue ${Math.abs(d)}d</span>`;
-  if (d <= 7) return `<span style="color:#f87171;font-weight:700">⚠️ ${d}d</span>`;
-  if (d <= 14) return `<span style="color:#fbbf24;font-weight:600">${d}d</span>`;
-  return `<span class="text-gray-400">${d}d</span>`;
+function renderDays(item){
+  if(item.status==='Launched') return '<span style="color:#4ade80;font-size:11px">✅ Done</span>';
+  const d=daysLeft(item.deadline);
+  if(d===null) return '<span class="text-gray-600">—</span>';
+  if(d<0) return '<span style="color:#f87171;font-weight:700">Overdue '+Math.abs(d)+'d</span>';
+  if(d<=7) return '<span style="color:#f87171;font-weight:700">⚠️ '+d+'d</span>';
+  if(d<=14) return '<span style="color:#fbbf24;font-weight:600">'+d+'d</span>';
+  return '<span class="text-gray-400">'+d+'d</span>';
 }
 
-function renderStats(data) {
-  const total = data.length;
-  const launched = data.filter(d => d.status === 'Launched').length;
-  const developing = data.filter(d => d.status === 'developing').length;
-  const atRisk = data.filter(d => {
-    if (d.status === 'Launched') return false;
-    const dl = daysLeft(d.deadline);
-    return dl !== null && dl <= 14;
+function buildTabs(){
+  const bar=document.getElementById('tabBar');
+  bar.innerHTML=TEAMS.map(t=>'<button class="tab-btn'+(t.id===currentTeam?' active':'')+'" onclick="switchTab(\''+t.id+'\')">'+t.label+'</button>').join('');
+}
+
+function renderStats(data){
+  const total=data.length;
+  const launched=data.filter(d=>d.status==='Launched').length;
+  const active=data.filter(d=>d.status&&d.status!=='Launched').length;
+  const atRisk=data.filter(d=>{
+    if(d.status==='Launched') return false;
+    const dl=daysLeft(d.deadline);
+    return dl!==null&&dl<=14;
   }).length;
-  document.getElementById('statCards').innerHTML = `
-    <div class="stat-card"><div class="text-2xl font-bold text-white">${total}</div><div class="text-xs text-gray-500 mt-1">Total Projects</div></div>
-    <div class="stat-card" style="border-color:#7f1d1d"><div class="text-2xl font-bold text-red-400">${atRisk}</div><div class="text-xs text-gray-500 mt-1">⚠️ At Risk (≤14d)</div></div>
-    <div class="stat-card" style="border-color:#1e3a5f"><div class="text-2xl font-bold text-blue-400">${developing}</div><div class="text-xs text-gray-500 mt-1">🔵 Developing</div></div>
-    <div class="stat-card" style="border-color:#14532d"><div class="text-2xl font-bold text-green-400">${launched}</div><div class="text-xs text-gray-500 mt-1">✅ Launched</div></div>
-  `;
+  document.getElementById('statCards').innerHTML=
+    '<div class="stat-card"><div class="text-2xl font-bold text-white">'+total+'</div><div class="text-xs text-gray-500 mt-1">Total Projects</div></div>'+
+    '<div class="stat-card" style="border-color:#7f1d1d"><div class="text-2xl font-bold text-red-400">'+atRisk+'</div><div class="text-xs text-gray-500 mt-1">⚠️ At Risk (≤14d)</div></div>'+
+    '<div class="stat-card" style="border-color:#1e3a5f"><div class="text-2xl font-bold text-blue-400">'+active+'</div><div class="text-xs text-gray-500 mt-1">🔄 In Progress</div></div>'+
+    '<div class="stat-card" style="border-color:#14532d"><div class="text-2xl font-bold text-green-400">'+launched+'</div><div class="text-xs text-gray-500 mt-1">✅ Launched</div></div>';
 }
 
-function renderAlerts(data) {
-  const urgent = data.filter(d => {
-    if (d.status === 'Launched') return false;
-    const dl = daysLeft(d.deadline);
-    return d.priority === 'P0' && dl !== null && dl <= 7;
+function renderAlerts(data){
+  const urgent=data.filter(d=>{
+    if(d.status==='Launched') return false;
+    const dl=daysLeft(d.deadline);
+    return d.priority==='P0'&&dl!==null&&dl<=7;
   });
-  const banner = document.getElementById('alertBanner');
-  if (!urgent.length) { banner.innerHTML = ''; return; }
-  banner.innerHTML = `<div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:8px;padding:10px 16px;color:#fca5a5;font-size:13px">🚨 <strong>P0 Urgent:</strong> ${urgent.map(u => `${u.name.trim()} (${daysLeft(u.deadline)}d left)`).join(' · ')}</div>`;
+  const banner=document.getElementById('alertBanner');
+  if(!urgent.length){banner.innerHTML='';return;}
+  banner.innerHTML='<div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:8px;padding:10px 16px;color:#fca5a5;font-size:13px">🚨 <strong>P0 Urgent:</strong> '+urgent.map(u=>u.name.trim()+' ('+daysLeft(u.deadline)+'d left)').join(' · ')+'</div>';
 }
 
-function populateFilters(data) {
-  const statuses = [...new Set(data.map(d => d.status).filter(Boolean))].sort();
-  const pics = [...new Set(data.map(d => d.pic).filter(Boolean))].sort();
-  const sf = document.getElementById('statusFilter');
-  const pf = document.getElementById('picFilter');
-  const cs = sf.value, cp = pf.value;
-  sf.innerHTML = '<option value="">All Status</option>' + statuses.map(s => `<option value="${s}" ${s===cs?'selected':''}>${s}</option>`).join('');
-  pf.innerHTML = '<option value="">All PIC</option>' + pics.map(p => `<option value="${p}" ${p===cp?'selected':''}>${p.replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join('');
+function populateFilters(data){
+  const statuses=[...new Set(data.map(d=>d.status).filter(Boolean))].sort();
+  const pics=[...new Set(data.map(d=>d.pic).filter(Boolean))].sort();
+  const sf=document.getElementById('statusFilter');
+  const pf=document.getElementById('picFilter');
+  const cs=sf.value,cp=pf.value;
+  sf.innerHTML='<option value="">All Status</option>'+statuses.map(s=>'<option value="'+s+'"'+(s===cs?' selected':'')+'>'+s+'</option>').join('');
+  pf.innerHTML='<option value="">All PIC</option>'+pics.map(p=>'<option value="'+p+'"'+(p===cp?' selected':'')+'>'+p+'</option>').join('');
 }
 
-function applyFilters() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const status = document.getElementById('statusFilter').value;
-  const priority = document.getElementById('priorityFilter').value;
-  const pic = document.getElementById('picFilter').value;
-  const teamData = rawData.filter(d => d.team === currentTeam);
-  const filtered = teamData.filter(d => {
-    if (search && !d.name.toLowerCase().includes(search)) return false;
-    if (status && d.status !== status) return false;
-    if (priority && d.priority !== priority) return false;
-    if (pic && d.pic !== pic) return false;
+function applyFilters(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const status=document.getElementById('statusFilter').value;
+  const priority=document.getElementById('priorityFilter').value;
+  const pic=document.getElementById('picFilter').value;
+  const teamData=rawData.filter(d=>d.team===currentTeam);
+  const filtered=teamData.filter(d=>{
+    if(search&&!d.name.toLowerCase().includes(search)&&!d.pic.toLowerCase().includes(search)) return false;
+    if(status&&d.status!==status) return false;
+    if(priority&&d.priority!==priority) return false;
+    if(pic&&d.pic!==pic) return false;
     return true;
   });
   renderTable(filtered);
 }
 
-function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
-  const empty = document.getElementById('emptyState');
-  const sorted = [...data].sort((a, b) => {
-    if (a.status === 'Launched' && b.status !== 'Launched') return 1;
-    if (b.status === 'Launched' && a.status !== 'Launched') return -1;
-    const da = a.deadline ? a.deadline.getTime() : Infinity;
-    const db = b.deadline ? b.deadline.getTime() : Infinity;
-    return da - db;
+function renderTable(data){
+  const tbody=document.getElementById('tableBody');
+  const empty=document.getElementById('emptyState');
+  const sorted=[...data].sort((a,b)=>{
+    if(a.status==='Launched'&&b.status!=='Launched') return 1;
+    if(b.status==='Launched'&&a.status!=='Launched') return -1;
+    const da=a.deadline?a.deadline.getTime():Infinity;
+    const db=b.deadline?b.deadline.getTime():Infinity;
+    return da-db;
   });
-  if (!sorted.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  document.getElementById('rowCount').textContent=sorted.length+' projects';
+  if(!sorted.length){tbody.innerHTML='';empty.classList.remove('hidden');return;}
   empty.classList.add('hidden');
-  tbody.innerHTML = sorted.map((item, i) => {
-    const picDisplay = item.pic.replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const hasNotes = item.notes && item.notes.trim();
-    return `
-      <tr class="expandable ${getRowClass(item)}" onclick="toggleNotes('n${i}')">
-        <td class="text-white font-medium">${item.name.trim()}${hasNotes ? ' <span style="color:#4b5563;font-size:10px">▼</span>' : ''}</td>
-        <td><span class="text-gray-300">${picDisplay}</span></td>
-        <td><span class="badge ${getStatusClass(item.status)}">${item.status || '—'}</span></td>
-        <td>${item.priority ? `<span class="badge ${getPriorityClass(item.priority)}">${item.priority}</span>` : '<span class="text-gray-600">—</span>'}</td>
-        <td class="text-gray-400" style="font-size:11px">${item.okr.length ? item.okr.join(', ') : '—'}</td>
-        <td class="text-gray-400">${formatDate(item.deadline)}</td>
-        <td>${renderDaysLeft(item)}</td>
-      </tr>
-      ${hasNotes ? `<tr id="n${i}" class="notes-row"><td colspan="7" style="background:#0d0f1a;color:#9ca3af;font-size:12px;padding:8px 16px;font-style:italic">${item.notes}</td></tr>` : ''}
-    `;
+  tbody.innerHTML=sorted.map((item,i)=>{
+    const hasNotes=item.notes&&item.notes.trim();
+    const mrdBtn=item.mrd?'<a class="mrd-link" href="'+item.mrd+'" target="_blank" onclick="event.stopPropagation()">📄 MRD</a>':'<span class="text-gray-700">—</span>';
+    return '<tr class="xrow '+getRowClass(item)+'" onclick="toggleNotes(\'n'+i+'\')">'+
+      '<td class="text-white font-medium">'+item.name+(hasNotes?' <span style="color:#374151;font-size:10px">▼</span>':'')+'</td>'+
+      '<td class="text-gray-300" style="font-size:12px">'+item.pic+'</td>'+
+      '<td><span class="badge '+getStatusClass(item.status)+'">'+( item.status||'—')+'</span></td>'+
+      '<td>'+(item.priority?'<span class="badge '+getPriorityClass(item.priority)+'">'+item.priority+'</span>':'<span class="text-gray-600">—</span>')+'</td>'+
+      '<td class="text-gray-400" style="font-size:11px">'+(item.okr.length?item.okr.join(', '):'—')+'</td>'+
+      '<td class="text-gray-400" style="font-size:12px">'+fmtDate(item.deadline)+'</td>'+
+      '<td>'+renderDays(item)+'</td>'+
+      '<td>'+mrdBtn+'</td>'+
+      '</tr>'+
+      (hasNotes?'<tr id="n'+i+'" class="notes-row"><td colspan="8" style="background:#0d0f1a;color:#9ca3af;font-size:12px;padding:8px 16px;font-style:italic;border-left:3px solid #374151">'+item.notes+'</td></tr>':'');
   }).join('');
 }
 
-function toggleNotes(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.toggle('open');
+function toggleNotes(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.toggle('open');
 }
 
-function switchTab(team) {
-  currentTeam = team;
-  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', (i === 0 && team === 'campaign') || (i === 1 && team === 'opsedge'));
-  });
-  document.getElementById('searchInput').value = '';
-  document.getElementById('priorityFilter').value = '';
-  const teamData = rawData.filter(d => d.team === team);
+function switchTab(team){
+  currentTeam=team;
+  buildTabs();
+  document.getElementById('searchInput').value='';
+  document.getElementById('priorityFilter').value='';
+  const teamData=rawData.filter(d=>d.team===team);
   populateFilters(teamData);
   renderStats(teamData);
   renderAlerts(teamData);
   applyFilters();
 }
 
-function resetFilters() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('statusFilter').value = '';
-  document.getElementById('priorityFilter').value = '';
-  document.getElementById('picFilter').value = '';
+function resetFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('statusFilter').value='';
+  document.getElementById('priorityFilter').value='';
+  document.getElementById('picFilter').value='';
   applyFilters();
 }
 
-document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+buildTabs();
 switchTab('campaign');
 </script>
 </body>
